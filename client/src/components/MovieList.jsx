@@ -1,10 +1,15 @@
 import React, { Component } from 'react'
+import Movie from './Movie.jsx'
 
 export default class MovieList extends Component {
+
   render() {
+    let { movies } = this.props;
     return (
       <div>
-        Here is a nested component
+        {movies.map((ele, ind) => {
+          return <Movie key = {ind} movie = {ele} />
+        })}
       </div>
     )
   }
