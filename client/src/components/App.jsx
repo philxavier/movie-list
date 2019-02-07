@@ -2,6 +2,8 @@
 
 import React, { Component } from 'react'
 import MovieList from './MovieList.jsx';
+import DecideFound from '../../../helpers/Decide Found.js'
+import helpers from '../../../helpers/helpers.js'
 
 export default class App extends Component {
 
@@ -10,16 +12,18 @@ export default class App extends Component {
 
     //references
     this.addMovieRef = React.createRef();
+    this.searchMovieRef = React.createRef();
 
     //properties
     this.moviesToBeWatched = [];
-    this.moviesWatched = [];
+    this.watchedMovies = [];
 
     //state
     this.state = {
       moviesToBeWatched: [],
       watchedMovies:[],
       toggledButton: true,
+      found: null
     }
 
     //functions
@@ -32,15 +36,27 @@ export default class App extends Component {
   handleAddMovies(e) {
     e.preventDefault();
     let { value } = this.addMovieRef.current;
-    this.moviesToBeWatched.push(value);
-    this.setState({
-      moviesToBeWatched: this.moviesToBeWatched,
-    })    
     this.addMovieRef.current.value = '';
+    if (value) {
+      debugger;
+      this.moviesToBeWatched.push(value);
+      this.setState({
+        moviesToBeWatched: this.moviesToBeWatched,
+        found: null
+      })
+    }         
   }
 
-  handleSearch() {
-    alert('handlewatch working')
+  handleSearch(e) {
+
+    e.preventDefault();
+    var searchArray = this.moviesToBeWatched.concat(this.watchedMovies);
+    let { value } = this.searchMovieRef.current;
+    this.searchMovieRef.current.value = '';
+    var foundMovies = helpers.searchHelper(searchArray, value)
+    this.setState({
+      found:foundMovies
+    })   
   }
 
   handleChangeColor() {
@@ -53,30 +69,40 @@ export default class App extends Component {
     this.setState({fieldValue: event.target.value});
   }
 
-  handleToggle() {
+  handleToggle(movie) {
+    helpers.transferMovieFromArrays(this.moviesToBeWatched, this.watchedMovies, movie); 
+    this.setState({
+      moviesToBeWatched: this.moviesToBeWatched,
+      watchedMovies: this.watchedMovies,
+    })
+  }
 
+  handleMovieInfo() {
+    helpers.getInfoOnline()
   }
 
   render() {
-    let { toggledButton, moviesToBeWatched, watchedMovies, handleToggle} = this.state;
-    console.log(moviesToBeWatched)
+  
+    let { toggledButton, moviesToBeWatched, watchedMovies, found} = this.state;
+
     return (
       <div>
         <h1>Movie List</h1>
          <form>
            <label>Add Movie here</label>
            <input  ref={this.addMovieRef} placeholder="Add Movie"></input>
-           <button onClick={(e) => {this.handleAddMovies(e)}}>Add Movie</button>
+           <button onClick={(e) => { this.handleAddMovies(e) }}>Add Movie</button>
            <br/>
            <br/>
            <label>Search Movie</label>
            <input ref={this.searchMovieRef} placeholder="Search movie here"></input>
-           <button>Search Movie</button>
+           <button onClick = {(e) => { this.handleSearch(e) }}>Search Movie</button>
          </form>
          <br/>
-         <button style={!this.state.toggledButton ? {background:'green', color:'white'} : null} onClick={this.handleChangeColor}>Watched Movies</button>
-         <button style={this.state.toggledButton ? {background:'green', color:'white'} : null} onClick={this.handleChangeColor}>To Watch</button>
-         <MovieList handleToggle={handleToggle} movies = {toggledButton ? moviesToBeWatched : watchedMovies } /> 
+         <button style={!toggledButton ? {background:'green', color:'white'} : null} onClick={this.handleChangeColor}>Watched Movies</button>
+         <button style={toggledButton ? {background:'green', color:'white'} : null} onClick={this.handleChangeColor}>To Watch</button>
+         <MovieList handleToggle={this.handleToggle} movies = {toggledButton ? moviesToBeWatched : watchedMovies } handleMovieInfo = {this.handleMovieInfo}/> 
+         {DecideFound(found)}        
       </div>
     )
   }

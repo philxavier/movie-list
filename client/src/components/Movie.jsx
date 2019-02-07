@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
+import Details from './Details.jsx';
 
 export default class Movie extends Component {
+
   render() {
-    let {movie, handleToggle} = this.props
+    let {movie, handleToggle, handleMovieInfo} = this.props
+
     return (
-      <div>
-        <br/>
+      <div onClick = {handleMovieInfo} >
         {movie}
-        <button onClick = {handleToggle}>watched</button>
+        <button name = {movie} onClick = {() =>{handleToggle(movie)}}>watched</button>
+        {/* //<Details /> */}
       </div>
     )
   }
